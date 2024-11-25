@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+    In web Javascript, create the following process.
+
+Master data which will exist in variable “master_data” are items, locations, stock_units.
+Items  is an array of Item which is composed of fields [item_id, name, sku, description, length, width, height, weight].
+Locations is an array of Location which is composed of fields [location_id, loc_number, zone, length, width, height.
+Stock_units is an array of stock_unit which is composed of fields [stock_unit_id, item_id, location_id, quantity].  Item_id is a foreign 
+    key to Item.item_id and location_id is a foreign key to Location.location_id.
+Stock units must have a valid item_id and location_id that exists.
+
+Build a UI window that is mobile device size.  All user input processes will be shown/replaced into that window.
+
+The “home” screen on the UI window should show 3 buttons/subprocesses.  These are “Create Item”, “Create Location”, and “Create Stock Unit”.  
+    Each process should prompt the user to create the corresponding data record.  The “Create Stock Unit” process should display drop-downs
+    for the location and item since they are related fields.
+
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        #app {
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: white;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div id="home-screen">
+            <h2>Home</h2>
+            <button onclick="showCreateItem()">Create Item</button>
+            <button onclick="showCreateLocation()">Create Location</button>
+            <button onclick="showCreateStockUnit()">Create Stock Unit</button>
+        </div>
+
+        <div id="create-item" class="hidden">
+            <h2>Create Item</h2>
+            <input type="text" id="item-name" placeholder="Name" required>
+            <input type="text" id="item-sku" placeholder="SKU" required>
+            <input type="text" id="item-description" placeholder="Description" required>
+            <input type="number" id="item-length" placeholder="Length" required>
+            <input type="number" id="item-width" placeholder="Width" required>
+            <input type="number" id="item-height" placeholder="Height" required>
+            <input type="number" id="item-weight" placeholder="Weight" required>
+            <button onclick="createItem()">Create</button>
+            <button onclick="showHome()">Back</button>
+        </div>
+
+        <div id="create-location" class="hidden">
+            <h2>Create Location</h2>
+            <input type="text" id="loc-number" placeholder="Location Number" required>
+            <input type="text" id="loc-zone" placeholder="Zone" required>
+            <input type="number" id="loc-length" placeholder="Length" required>
+            <input type="number" id="loc-width" placeholder="Width" required>
+            <input type="number" id="loc-height" placeholder="Height" required>
+            <button onclick="createLocation()">Create</button>
+            <button onclick="showHome()">Back</button>
+        </div>
+
+        <div id="create-stock-unit" class="hidden">
+            <h2>Create Stock Unit</h2>
+            <select id="stock-item-dropdown"></select>
+            <select id="stock-location-dropdown"></select>
+            <input type="number" id="stock-quantity" placeholder="Quantity" required>
+            <button onclick="createStockUnit()">Create</button>
+            <button onclick="showHome()">Back</button>
+        </div>
+    </div>
+
+    <script>
+        const master_data = {
+            items: [],
+            locations: [],
+            stock_units: [],
+        };
+
+        function showHome() {
+            document.getElementById('home-screen').classList.remove('hidden');
+            document.getElementById('create-item').classList.add('hidden');
+            document.getElementById('create-location').classList.add('hidden');
+            document.getElementById('create-stock-unit').classList.add('hidden');
+        }
+
+        function showCreateItem() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('create-item').classList.remove('hidden');
+        }
+
+        function showCreateLocation() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('create-location').classList.remove('hidden');
+        }
+
+        function showCreateStockUnit() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('create-stock-unit').classList.remove('hidden');
+
+            updateStockDropdowns();
+        }
+
+        function updateStockDropdowns() {
+            const itemDropdown = document.getElementById('stock-item-dropdown');
+            const locationDropdown = document.getElementById('stock-location-dropdown');
+
+            itemDropdown.innerHTML = '';
+            locationDropdown.innerHTML = '';
+
+            master_data.items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.item_id;
+                option.textContent = item.name;
+                itemDropdown.appendChild(option);
+            });
+
+            master_data.locations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location.location_id;
+                option.textContent = location.loc_number;
+                locationDropdown.appendChild(option);
+            });
+        }
+
+        function createItem() {
+            const item = {
+                item_id: master_data.items.length + 1,
+                name: document.getElementById('item-name').value,
+                sku: document.getElementById('item-sku').value,
+                description: document.getElementById('item-description').value,
+                length: parseFloat(document.getElementById('item-length').value),
+                width: parseFloat(document.getElementById('item-width').value),
+                height: parseFloat(document.getElementById('item-height').value),
+                weight: parseFloat(document.getElementById('item-weight').value),
+            };
+
+            master_data.items.push(item);
+            alert('Item created!');
+            showHome();
+        }
+
+        function createLocation() {
+            const location = {
+                location_id: master_data.locations.length + 1,
+                loc_number: document.getElementById('loc-number').value,
+                zone: document.getElementById('loc-zone').value,
+                length: parseFloat(document.getElementById('loc-length').value),
+                width: parseFloat(document.getElementById('loc-width').value),
+                height: parseFloat(document.getElementById('loc-height').value),
+            };
+
+            master_data.locations.push(location);
+            alert('Location created!');
+            showHome();
+        }
+
+        function createStockUnit() {
+            const stock_unit = {
+                stock_unit_id: master_data.stock_units.length + 1,
+                item_id: parseInt(document.getElementById('stock-item-dropdown').value),
+                location_id: parseInt(document.getElementById('stock-location-dropdown').value),
+                quantity: parseInt(document.getElementById('stock-quantity').value),
+            };
+
+            // Validate item_id and location_id
+            const itemExists = master_data.items.some(item => item.item_id === stock_unit.item_id);
+            const locationExists = master_data.locations.some(location => location.location_id === stock_unit.location_id);
+
+            if (itemExists && locationExists) {
+                master_data.stock_units.push(stock_unit);
+                alert('Stock unit created!');
+            } else {
+                alert('Invalid item or location id.');
+            }
+
+            showHome();
+        }
+
+        // Initialize home screen on page load
+        showHome();
+    </script>
+</body>
+</html>

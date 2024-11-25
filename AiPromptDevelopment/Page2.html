@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- AI prompt
+In web Javascript, create the following process.
+
+Master data which will exist in variable “master_data” are items, locations, stock_units.
+Items  is an array of Item which is composed of fields [item_id, name, sku, description, length, width, height, weight].
+Locations is an array of Location which is composed of fields [location_id, loc_number, zone, length, width, height.
+Stock_units is an array of stock_unit which is composed of fields [stock_unit_id, item_id, location_id, quantity].  Item_id is
+    a foreign key to Item.item_id and location_id is a foreign key to Location.location_id.
+Stock units must have a valid item_id and location_id that exists.
+
+Build a UI window that is mobile device size.  All user input processes will be shown/replaced into that window.
+
+The “home” screen on the UI window should show 2 buttons, routing to submenus.  The first button should be “Create” and route to
+    the Create Screen explained below.  The second button should be “Lookup” and route to the Lookup Screen explained below.
+
+Create Screen: Has 3 buttons: “Create Item”, “Create Location”, and “Create Stock Unit”.
+Each process should prompt the user to create the corresponding data record.
+Each process should have a small gear icon in the top right of the screen to add/remove fields that are being displayed.
+The “Create Stock Unit” process should display drop-downs for the location and item since they are related fields.
+
+Lookup Screen: Has 3 buttons: “Lookup Item”, “Lookup Location”, and “Lookup Stock Unit”
+Each process should show the correspond array of associated data, as a table, so that all records are displayed, and each record 
+    (row) has a column for every field.  The columns of the table should be labeled.
+Each process should have a small gear icon in top right to add/remove fields (aka columns) being displayed.
+Each column should be sortable by click.
+Right clicking on a column should allow user to add a filter for the corresponding column.  This will display a section for user
+    to filter by different options, such as startsWith, endsWith, like, GT, LT, etc.
+
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+
+        #app {
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .hidden {
+            display: none;
+        }
+
+        .gear-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            cursor: pointer;
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div id="home-screen">
+            <h2>Home</h2>
+            <button onclick="showCreateScreen()">Create</button>
+            <button onclick="showLookupScreen()">Lookup</button>
+        </div>
+
+        <div id="create-screen" class="hidden">
+            <h2>Create</h2>
+            <span class="gear-icon" onclick="toggleCreateFields()">⚙️</span>
+            <button onclick="showCreateItem()">Create Item</button>
+            <button onclick="showCreateLocation()">Create Location</button>
+            <button onclick="showCreateStockUnit()">Create Stock Unit</button>
+            <div id="create-form" class="hidden"></div>
+            <button onclick="showHome()">Back</button>
+        </div>
+
+        <div id="lookup-screen" class="hidden">
+            <h2>Lookup</h2>
+            <span class="gear-icon" onclick="toggleLookupFields()">⚙️</span>
+            <button onclick="lookupItems()">Lookup Item</button>
+            <button onclick="lookupLocations()">Lookup Location</button>
+            <button onclick="lookupStockUnits()">Lookup Stock Unit</button>
+            <div id="lookup-result" class="hidden"></div>
+            <button onclick="showHome()">Back</button>
+        </div>
+    </div>
+
+    <script>
+        const master_data = {
+            items: [],
+            locations: [],
+            stock_units: [],
+        };
+
+        function showHome() {
+            document.getElementById('home-screen').classList.remove('hidden');
+            document.getElementById('create-screen').classList.add('hidden');
+            document.getElementById('lookup-screen').classList.add('hidden');
+            document.getElementById('lookup-result').classList.add('hidden');
+            document.getElementById('create-form').innerHTML = '';
+        }
+
+        function showCreateScreen() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('create-screen').classList.remove('hidden');
+            document.getElementById('lookup-screen').classList.add('hidden');
+        }
+
+        function showLookupScreen() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('create-screen').classList.add('hidden');
+            document.getElementById('lookup-screen').classList.remove('hidden');
+        }
+
+        function toggleCreateFields() {
+            // Add/remove fields logic can be implemented here if needed
+            alert('Toggle create fields functionality is not implemented yet.');
+        }
+
+        function showCreateItem() {
+            const form = `
+                <h3>Create Item</h3>
+                <input type="text" id="item-name" placeholder="Name" required><br>
+                <input type="text" id="item-sku" placeholder="SKU" required><br>
+                <input type="text" id="item-description" placeholder="Description" required><br>
+                <input type="number" id="item-length" placeholder="Length" required><br>
+                <input type="number" id="item-width" placeholder="Width" required><br>
+                <input type="number" id="item-height" placeholder="Height" required><br>
+                <input type="number" id="item-weight" placeholder="Weight" required><br>
+                <button onclick="createItem()">Create</button>
+            `;
+            document.getElementById('create-form').innerHTML = form;
+            document.getElementById('create-form').classList.remove('hidden');
+        }
+
+        function showCreateLocation() {
+            const form = `
+                <h3>Create Location</h3>
+                <input type="text" id="loc-number" placeholder="Location Number" required><br>
+                <input type="text" id="loc-zone" placeholder="Zone" required><br>
+                <input type="number" id="loc-length" placeholder="Length" required><br>
+                <input type="number" id="loc-width" placeholder="Width" required><br>
+                <input type="number" id="loc-height" placeholder="Height" required><br>
+                <button onclick="createLocation()">Create</button>
+            `;
+            document.getElementById('create-form').innerHTML = form;
+            document.getElementById('create-form').classList.remove('hidden');
+        }
+
+        function showCreateStockUnit() {
+            const form = `
+                <h3>Create Stock Unit</h3>
+                <select id="stock-item-dropdown"></select>
+                <select id="stock-location-dropdown"></select>
+                <input type="number" id="stock-quantity" placeholder="Quantity" required><br>
+                <button onclick="createStockUnit()">Create</button>
+            `;
+            document.getElementById('create-form').innerHTML = form;
+            document.getElementById('create-form').classList.remove('hidden');
+            updateStockDropdowns();
+        }
+
+        function updateStockDropdowns() {
+            const itemDropdown = document.getElementById('stock-item-dropdown');
+            const locationDropdown = document.getElementById('stock-location-dropdown');
+
+            itemDropdown.innerHTML = '';
+            locationDropdown.innerHTML = '';
+
+            master_data.items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.item_id;
+                option.textContent = item.name;
+                itemDropdown.appendChild(option);
+            });
+
+            master_data.locations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location.location_id;
+                option.textContent = location.loc_number;
+                locationDropdown.appendChild(option);
+            });
+        }
+
+        function createItem() {
+            const item = {
+                item_id: master_data.items.length + 1,
+                name: document.getElementById('item-name').value,
+                sku: document.getElementById('item-sku').value,
+                description: document.getElementById('item-description').value,
+                length: parseFloat(document.getElementById('item-length').value),
+                width: parseFloat(document.getElementById('item-width').value),
+                height: parseFloat(document.getElementById('item-height').value),
+                weight: parseFloat(document.getElementById('item-weight').value),
+            };
+
+            master_data.items.push(item);
+            alert('Item created!');
+            showHome();
+        }
+
+        function createLocation() {
+            const location = {
+                location_id: master_data.locations.length + 1,
+                loc_number: document.getElementById('loc-number').value,
+                zone: document.getElementById('loc-zone').value,
+                length: parseFloat(document.getElementById('loc-length').value),
+                width: parseFloat(document.getElementById('loc-width').value),
+                height: parseFloat(document.getElementById('loc-height').value),
+            };
+
+            master_data.locations.push(location);
+            alert('Location created!');
+            showHome();
+        }
+
+        function createStockUnit() {
+            const stock_unit = {
+                stock_unit_id: master_data.stock_units.length + 1,
+                item_id: parseInt(document.getElementById('stock-item-dropdown').value),
+                location_id: parseInt(document.getElementById('stock-location-dropdown').value),
+                quantity: parseInt(document.getElementById('stock-quantity').value),
+            };
+
+            const itemExists = master_data.items.some(item => item.item_id === stock_unit.item_id);
+            const locationExists = master_data.locations.some(location => location.location_id === stock_unit.location_id);
+
+            if (itemExists && locationExists) {
+                master_data.stock_units.push(stock_unit);
+                alert('Stock unit created!');
+            } else {
+                alert('Invalid item or location id.');
+            }
+
+            showHome();
+        }
+
+        function toggleLookupFields() {
+            // Add/remove fields logic for lookup can be implemented here if needed
+            alert('Toggle lookup fields functionality is not implemented yet.');
+        }
+
+        function lookupItems() {
+            const resultDiv = `
+                <h3>Item List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('item')">Item ID</th>
+                            <th onclick="sortTable('name')">Name</th>
+                            <th onclick="sortTable('sku')">SKU</th>
+                            <th onclick="sortTable('description')">Description</th>
+                            <th onclick="sortTable('length')">Length</th>
+                            <th onclick="sortTable('width')">Width</th>
+                            <th onclick="sortTable('height')">Height</th>
+                            <th onclick="sortTable('weight')">Weight</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${master_data.items.map(item => `
+                            <tr>
+                                <td>${item.item_id}</td>
+                                <td>${item.name}</td>
+                                <td>${item.sku}</td>
+                                <td>${item.description}</td>
+                                <td>${item.length}</td>
+                                <td>${item.width}</td>
+                                <td>${item.height}</td>
+                                <td>${item.weight}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('lookup-result').innerHTML = resultDiv;
+            document.getElementById('lookup-result').classList.remove('hidden');
+        }
+
+        function lookupLocations() {
+            const resultDiv = `
+                <h3>Location List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('location')">Location ID</th>
+                            <th onclick="sortTable('loc_number')">Location Number</th>
+                            <th onclick="sortTable('zone')">Zone</th>
+                            <th onclick="sortTable('length')">Length</th>
+                            <th onclick="sortTable('width')">Width</th>
+                            <th onclick="sortTable('height')">Height</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${master_data.locations.map(location => `
+                            <tr>
+                                <td>${location.location_id}</td>
+                                <td>${location.loc_number}</td>
+                                <td>${location.zone}</td>
+                                <td>${location.length}</td>
+                                <td>${location.width}</td>
+                                <td>${location.height}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('lookup-result').innerHTML = resultDiv;
+            document.getElementById('lookup-result').classList.remove('hidden');
+        }
+
+        function lookupStockUnits() {
+            const resultDiv = `
+                <h3>Stock Unit List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('stock_unit')">Stock Unit ID</th>
+                            <th onclick="sortTable('item_id')">Item ID</th>
+                            <th onclick="sortTable('location_id')">Location ID</th>
+                            <th onclick="sortTable('quantity')">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${master_data.stock_units.map(stock_unit => `
+                            <tr>
+                                <td>${stock_unit.stock_unit_id}</td>
+                                <td>${stock_unit.item_id}</td>
+                                <td>${stock_unit.location_id}</td>
+                                <td>${stock_unit.quantity}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('lookup-result').innerHTML = resultDiv;
+            document.getElementById('lookup-result').classList.remove('hidden');
+        }
+
+        // Sorting Functionality
+        function sortTable(key) {
+            if (key === 'item') {
+                // Implement sorting for items
+                master_data.items.sort((a, b) => a.item_id - b.item_id);
+            } else if (key === 'name') {
+                // Implement sorting for names
+                master_data.items.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (key === 'sku') {
+                // Implement sorting for sku
+                master_data.items.sort((a, b) => a.sku.localeCompare(b.sku));
+            } else if (key === 'description') {
+                // Implement sorting for description
+                master_data.items.sort((a, b) => a.description.localeCompare(b.description));
+            } else if (key === 'length') {
+                // Implement sorting for length
+                master_data.items.sort((a, b) => a.length - b.length);
+            } else if (key === 'width') {
+                // Implement sorting for width
+                master_data.items.sort((a, b) => a.width - b.width);
+            } else if (key === 'height') {
+                // Implement sorting for height
+                master_data.items.sort((a, b) => a.height - b.height);
+            } else if (key === 'weight') {
+                // Implement sorting for weight
+                master_data.items.sort((a, b) => a.weight - b.weight);
+            }
+
+            // Refresh the lookup of items after sorting
+            lookupItems();
+        }
+
+        // Initialize home screen on page load
+        showHome();
+    </script>
+</body>
+</html>
