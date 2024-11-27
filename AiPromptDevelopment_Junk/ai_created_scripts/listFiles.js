@@ -1,6 +1,5 @@
 /*
- * Write node.js code to read files from a folder, and generate a string of HTML code that will list 
- * all of the files with links to the file path.
+ * Write node.js code to read files from a folder, and generate a string of HTML code that will list all of the files with links to the file path relative to the folder path.
  * 
  * */
 
