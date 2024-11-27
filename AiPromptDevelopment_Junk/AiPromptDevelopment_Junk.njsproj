@@ -38,6 +38,12 @@
     <Content Include="ai_created_scripts\listFilesRelativePath.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="invokeFuntionsViaCmdLine\app.js" />
+    <Content Include="invokeFuntionsViaCmdLine\FileA.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="invokeFuntionsViaCmdLine\README.md" />
+    <Content Include="invokeFuntionsViaCmdLine\Screenshot 2024-11-27 143821.png" />
     <Content Include="public\routes\Page1.html" />
     <Content Include="public\routes\Page2.html" />
     <Content Include="server.js" />
@@ -46,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ai_created_scripts\" />
+    <Folder Include="invokeFuntionsViaCmdLine\" />
     <Folder Include="public\" />
     <Folder Include="public\javascript\" />
     <Folder Include="public\routes\" />
