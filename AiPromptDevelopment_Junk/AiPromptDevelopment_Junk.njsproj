@@ -28,9 +28,20 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Page1.html" />
+    <Content Include="ai_created_scripts\listFiles.js" />
+    <Content Include="public\routes\listFiles.js" />
+    <Content Include="public\routes\Page1.html" />
+    <Content Include="public\routes\Page2.html" />
     <Content Include="server.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ai_created_scripts\" />
+    <Folder Include="public\" />
+    <Folder Include="public\javascript\" />
+    <Folder Include="public\routes\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
   <ProjectExtensions>
