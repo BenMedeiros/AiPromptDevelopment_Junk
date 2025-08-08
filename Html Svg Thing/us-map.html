@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>United States map — Leaflet + GeoJSON</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    html,body,#map { height:100%; margin:0; padding:0; }
+    .info { background:white; padding:6px 8px; border-radius:4px; font-family:Arial; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Create map centered on the continental US
+    const map = L.map('map', { zoomControl: true }).setView([39.5, -98.35], 4);
+
+    // Base tiles (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Example GeoJSON URL of US states (raw gist/github)
+    const geoJsonUrl = 'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json';
+
+    // Style for states
+    function style(feature) {
+      return {
+        fillColor: '#3388ff',
+        weight: 1,
+        opacity: 1,
+        color: '#222',
+        fillOpacity: 0.4
+      };
+    }
+
+    fetch(geoJsonUrl)
+      .then(res => {
+        if (!res.ok) throw new Error('GeoJSON load failed: ' + res.status);
+        return res.json();
+      })
+      .then(data => {
+        const layer = L.geoJSON(data, {
+          style,
+          onEachFeature: (feature, layer) => {
+            const name = feature.properties && (feature.properties.name || feature.properties.NAME || feature.properties.STATE_NAME) || 'Unknown';
+            layer.bindPopup(`<strong>${name}</strong>`);
+          }
+        }).addTo(map);
+
+        // Fit map to layer bounds
+        map.fitBounds(layer.getBounds(), { padding: [20,20] });
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Could not load US GeoJSON. Check network or URL in the HTML file.');
+      });
+  </script>
+</body>
+</html>
